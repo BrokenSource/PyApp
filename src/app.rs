@@ -291,6 +291,10 @@ pub fn managed_uv() -> PathBuf {
     managed_uv_cache().join(filename)
 }
 
+pub fn ready_flag_path() -> PathBuf {
+    install_dir().join("ready.flag")
+}
+
 pub fn installation_lock() -> PathBuf {
     cache_dir().join("locks").join(format!(
         "installation-{}-{}-{}",

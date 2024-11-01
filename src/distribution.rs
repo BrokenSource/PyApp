@@ -138,12 +138,14 @@ pub fn ensure_ready() -> Result<()> {
     let lock_path = app::installation_lock();
     let lock_file = fs_utils::acquire_lock(&lock_path)?;
 
-    if !app::install_dir().is_dir() {
+    if !app::ready_flag_path().is_file() {
         materialize()?;
 
         if !app::skip_install() {
             install_project()?;
         }
+
+        fs::File::create(app::ready_flag_path()).ok();
     }
 
     lock_file
