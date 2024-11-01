@@ -132,6 +132,10 @@ pub fn project_embed_file_name() -> String {
     env!("PYAPP__PROJECT_EMBED_FILE_NAME").into()
 }
 
+pub fn project_extra_wheels() -> String {
+    env!("PYAPP__PROJECT_EXTRA_WHEELS").into()
+}
+
 pub fn exec_module() -> String {
     env!("PYAPP_EXEC_MODULE").into()
 }

@@ -370,6 +370,16 @@ fn install_project() -> Result<()> {
             pip_install_dependency_file(&dependency_file, command, wait_message)
         }
     }?;
+
+    let extra_wheels = app::project_extra_wheels();
+    if !extra_wheels.is_empty() {
+        let mut command = pip_install_command();
+        for wheel in extra_wheels.split(';') {
+            if wheel.is_empty() { continue };
+            command.arg(wheel);
+        }
+        pip_install(command, "Installing extra wheels".to_string())?;
+    }
     check_setup_status(status, output)?;
 
     Ok(())

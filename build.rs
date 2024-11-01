@@ -504,6 +504,28 @@ fn set_project_dependency_file(dependency_file: &str) {
     set_runtime_variable("PYAPP__PROJECT_DEPENDENCY_FILE_NAME", file_name);
 }
 
+fn set_extra_wheels() {
+    let extra_wheels = env::var("PYAPP_EXTRA_WHEELS").unwrap_or_default();
+    let mut bundle = String::new();
+    if !extra_wheels.is_empty() {
+        for wheel in extra_wheels.split(';') {
+            let embed_path = embed_file(&PathBuf::from(wheel).file_name().unwrap().to_str().unwrap());
+            let path = PathBuf::from(wheel);
+            if !path.is_file() {
+                panic!("\n\nExtra wheel is not a file: {wheel}\n\n");
+            }
+            fs::copy(&wheel, &embed_path).unwrap_or_else(|_| {
+                panic!(
+                    "\n\nFailed to copy local wheel from {wheel} to {embed_path}\n\n",
+                    embed_path = embed_path.display()
+                )
+            });
+            bundle.push_str(&format!("{};", embed_path.display()));
+        }
+    }
+    set_runtime_variable("PYAPP__PROJECT_EXTRA_WHEELS", bundle);
+}
+
 fn set_project() {
     let embed_path = embed_file("project");
     let local_path = env::var("PYAPP_PROJECT_PATH").unwrap_or_default();
@@ -1163,6 +1185,7 @@ fn set_metadata_template() {
 
 fn main() {
     set_project();
+    set_extra_wheels();
     set_distribution();
     set_execution_mode();
     set_is_gui();
