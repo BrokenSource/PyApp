@@ -7,6 +7,7 @@ use anyhow::{Context, Result};
 use base64::{engine::general_purpose::STANDARD_NO_PAD, Engine as _};
 use directories::ProjectDirs;
 use once_cell::sync::OnceCell;
+use include_dir::{include_dir, Dir};
 
 static PLATFORM_DIRS: OnceCell<ProjectDirs> = OnceCell::new();
 static INSTALLATION_DIRECTORY: OnceCell<PathBuf> = OnceCell::new();
@@ -70,6 +71,10 @@ pub fn embedded_project() -> &'static [u8] {
     include_bytes!("embed/project")
 }
 
+pub fn embedded_extra() -> Dir<'static> {
+    include_dir!("$CARGO_MANIFEST_DIR/src/embed")
+}
+
 fn installation_python_path() -> String {
     env!("PYAPP__INSTALLATION_PYTHON_PATH").into()
 }
@@ -130,10 +135,6 @@ pub fn project_dependency_file_name() -> String {
 
 pub fn project_embed_file_name() -> String {
     env!("PYAPP__PROJECT_EMBED_FILE_NAME").into()
-}
-
-pub fn project_extra_wheels() -> String {
-    env!("PYAPP__PROJECT_EXTRA_WHEELS").into()
 }
 
 pub fn exec_module() -> String {

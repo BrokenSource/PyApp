@@ -347,6 +347,22 @@ fn install_project() -> Result<()> {
             temp_path.to_string_lossy().as_ref().to_string(),
         ));
 
+        for entry in app::embedded_extra().find("*.whl").unwrap() {
+            let temp_path = dir.path().join(entry.path());
+
+            let mut f = fs::File::create(&temp_path).with_context(|| {
+                format!("unable to create temporary file: {}", &temp_path.display())
+            })?;
+            f.write(entry.as_file().unwrap().contents()).with_context(|| {
+                format!(
+                    "unable to write embedded project to temporary file: {}",
+                    &temp_path.display()
+                )
+            })?;
+
+            command.arg(temp_path.to_string_lossy().as_ref().to_string());
+        }
+
         let wait_message = if binary_only && file_name.ends_with(".whl") {
             format!("Unpacking {}", install_target)
         } else {
@@ -372,16 +388,6 @@ fn install_project() -> Result<()> {
             pip_install_dependency_file(&dependency_file, command, wait_message)
         }
     }?;
-
-    let extra_wheels = app::project_extra_wheels();
-    if !extra_wheels.is_empty() {
-        let mut command = pip_install_command();
-        for wheel in extra_wheels.split(';') {
-            if wheel.is_empty() { continue };
-            command.arg(wheel);
-        }
-        pip_install(command, "Installing extra wheels".to_string())?;
-    }
     check_setup_status(status, output)?;
 
     Ok(())

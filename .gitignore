@@ -16,5 +16,8 @@ target/
 /.cache/
 /site/
 
+# Embedding
+embed
+
 # Editor configs
 .vscode/
